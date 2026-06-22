@@ -71,9 +71,9 @@ node server.js  # 默认端口 3210
 node server.js --generate \
   --name="纯真年代书吧" \
   --lng=120.14873 --lat=30.25954 \
-  --host=https://your-domain.com
+  --host=https://www.701study.com/app/checkin-service
 
-# 输出: {"sessionId":"abc123","url":"https://your-domain.com/checkin/abc123"}
+# 输出: {"sessionId":"abc123","url":"https://www.701study.com/app/checkin-service/checkin/abc123"}
 
 # 查询打卡结果
 node server.js --status=abc123
@@ -319,7 +319,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 │  AI 调用打卡服务生成链接，发给用户：                    │
 │    node server.js --generate                          │
 │      --name="地点名" --lng=经度 --lat=纬度             │
-│      --host=https://your-domain.com                  │
+│      --host=https://www.701study.com/app/checkin-service │
 │                                                     │
 │  用户在聊天中点击链接 → 手机浏览器打开 H5 页面          │
 │  → 用户点击"获取位置并打卡" → 浏览器调用               │
@@ -368,7 +368,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 
 ```
 【步骤1：打卡链接定位】
-AI：🔗 请点击打卡链接确认到达：https://your-domain.com/checkin/abc123
+AI：🔗 请点击打卡链接确认到达：https://www.701study.com/app/checkin-service/checkin/abc123
 用户：[点击链接，浏览器打开，授权定位，点击"获取位置并打卡"]
 AI（查询结果）：📍 定位确认！你距离「纯真年代书吧」约 85 米，已到达！
 
