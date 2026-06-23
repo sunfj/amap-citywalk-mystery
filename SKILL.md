@@ -70,7 +70,7 @@ PLACEHOLDER_一：获取用户位置（优先）
 **如果用户未指定城市，先获取位置**：
 ```
 📍 让我先获取你的位置，为你推荐附近的路线！
-点击这个链接：https://www.701study.com/app/citywalk-service/checkin/location
+点击这个链接：[调用 location 命令获取定位链接]
 ```
 
 用户点击后，浏览器会自动获取 GPS，服务端返回城市信息。
@@ -106,7 +106,7 @@ PLACEHOLDER_二：获取用户偏好
 ```
 用户：我想玩剧本杀
 AI：📍 让我先获取你的位置，为你推荐附近的路线！
-    点击这个链接：https://www.701study.com/app/citywalk-service/checkin/location
+    点击这个链接：[调用 location 命令获取定位链接]
 
 [用户点击，授权定位]
 
@@ -318,8 +318,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 ┌─ 步骤 1：打卡链接定位验证 ─────────────────────────┐
 │                                                     │
 │  AI 调用打卡服务生成链接，发给用户：                    │
-│    POST https://www.701study.com/app/citywalk-service/api/checkin  │
-│      /api/sessions                                   │
+│    node scripts/api-client.js checkin <地点> <纬度> <经度> │
 │                                                     │
 │  用户在聊天中点击链接 → 手机浏览器打开 H5 页面          │
 │  → 用户点击"获取位置并打卡" → 浏览器调用               │
@@ -327,7 +326,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 │  → 自动提交到打卡服务，比对距离                         │
 │                                                     │
 │  AI 查询结果：                                        │
-│    GET /api/sessions/:sessionId                      │
+│    [从命令返回值中获取 sessionId 和 checkinUrl]        │
 │                                                     │
 │  passed=true  → ✅ "📍 定位确认！你距目标 XX 米"       │
 │  passed=false → ⚠️ "你距目标还有 XX 米，到了再打卡"     │
@@ -355,9 +354,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 │                                                     │
 │  用户在聊天中发文字消息回答                             │
 │  AI 调用题库服务校验答案：                              │
-│    POST https://www.701study.com/app/citywalk-service/api │
-│      /api/questions/verify                           │
-│    { questionId, userAnswer, photoVerified }          │
+│    node scripts/api-client.js verify <题目ID> <答案>    │
 │                                                     │
 │  AI 不接触标准答案，由服务端返回 correct:true/false    │
 │                                                     │
@@ -373,7 +370,7 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 
 ```
 【步骤1：打卡链接定位】
-AI：🔗 请点击打卡链接确认到达：https://www.701study.com/app/citywalk-service/checkin/abc123
+AI：🔗 请点击打卡链接确认到达：[调用 checkin 命令获取打卡链接]
 用户：[点击链接，浏览器打开，授权定位，点击"获取位置并打卡"]
 AI（查询结果）：📍 定位确认！你距离「纯真年代书吧」约 85 米，已到达！
 
