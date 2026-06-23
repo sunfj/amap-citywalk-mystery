@@ -133,9 +133,9 @@ npm install
 
 | 服务 | 地址 | 用途 |
 |------|------|------|
-| 高德 API 代理 | `https://www.701study.com/app/amap-api` | POI 搜索、路径规划、天气、地图 |
-| 打卡验证服务 | `https://www.701study.com/app/checkin-service` | GPS 定位打卡验证 |
-| 题库服务 | `https://www.701study.com/app/question-service` | 题库查询、上传、答案校验 |
+| 高德 API 代理 | `https://www.701study.com/app/citywalk-service/api/amap` | POI 搜索、路径规划、天气、地图 |
+| 打卡验证服务 | `https://www.701study.com/app/citywalk-service/api/checkin` | GPS 定位打卡验证 |
+| 题库服务 | `https://www.701study.com/app/citywalk-service/api` | 题库查询、上传、答案校验 |
 
 **如果本地开发/部署，可参考各服务的 README 文档。**
 
@@ -145,7 +145,7 @@ npm install
 node server.js
 
 # 生成打卡链接
-node server.js --generate --name="纯真年代书吧" --lng=120.14873 --lat=30.25954 --host=https://www.701study.com/app/checkin-service
+node server.js --generate --name="纯真年代书吧" --lng=120.14873 --lat=30.25954 --host=https://www.701study.com/app/citywalk-service/api/checkin
 
 # 查询打卡结果
 node server.js --status=<sessionId>
