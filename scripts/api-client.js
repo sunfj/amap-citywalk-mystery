@@ -39,9 +39,16 @@ async function request(method, path, data) {
 
 // 命令实现
 const commands = {
-  // 获取定位链接
-  location: () => {
-    console.log(`${BASE_URL}/checkin/location`);
+  // 创建位置会话并返回定位链接
+  location: async () => {
+    const result = await request('POST', '/api/checkin/create-location');
+    console.log(`${BASE_URL}/checkin/location?sessionId=${result.sessionId}`);
+  },
+
+  // 查询位置结果
+  'location-result': async (sessionId) => {
+    const result = await request('GET', `/api/checkin/location/${sessionId}`);
+    console.log(JSON.stringify(result, null, 2));
   },
 
   // 查询天气
