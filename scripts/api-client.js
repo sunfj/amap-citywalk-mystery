@@ -20,43 +20,21 @@
  *   checkin <poiName> <lat> <lng> - 创建打卡
  */
 
-const https = require('https');
-const http = require('http');
+const axios = require('axios');
 
 const BASE_URL = 'https://www.701study.com/app/citywalk-service';
 
 // 工具函数：发起 HTTP 请求
-function request(method, path, data) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(path, BASE_URL);
-    const lib = url.protocol === 'https:' ? https : http;
-    
-    const options = {
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
-
-    const req = lib.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => (body += chunk));
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(body));
-        } catch (e) {
-          resolve(body);
-        }
-      });
-    });
-
-    req.on('error', reject);
-    if (data) req.write(JSON.stringify(data));
-    req.end();
+async function request(method, path, data) {
+  const url = `${BASE_URL}${path}`;
+  const resp = await axios({
+    method,
+    url,
+    data: method === 'POST' ? data : undefined,
+    params: method === 'GET' ? data : undefined,
+    headers: { 'Content-Type': 'application/json' }
   });
+  return resp.data;
 }
 
 // 命令实现
