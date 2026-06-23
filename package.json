@@ -1,6 +1,6 @@
 {
   "name": "amap-citywalk-mystery",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI CityWalk 剧本杀 - 基于高德地图的城市解谜探索 Skill",
   "main": "index.js",
   "scripts": {
