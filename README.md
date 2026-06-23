@@ -145,7 +145,7 @@ npm install
 node server.js
 
 # 生成打卡链接
-node server.js --generate --name="纯真年代书吧" --lng=120.14873 --lat=30.25954 --host=https://www.701study.com/app/citywalk-service/api/checkin
+node server.js --generate --name="纯真年代书吧" --lng=120.14873 --lat=30.25954 --host=https://www.701study.com/app/citywalk-service/checkin
 
 # 查询打卡结果
 node server.js --status=<sessionId>
