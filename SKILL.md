@@ -1,3 +1,10 @@
+---
+name: amap-citywalk-mystery
+description: AI CityWalk 剧本杀 — 基于高德地图的城市解谜探索 Skill，AI 作为剧本杀主持人，生成沉浸式剧本并串联真实地点
+version: 0.1.3
+author: sunfj
+---
+
 # AI CityWalk 剧本杀
 
 ## Skill 名称
