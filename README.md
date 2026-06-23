@@ -85,6 +85,12 @@ AI：🏆 通关成绩卡
 
 ### 在 OpenClaw 中使用
 
+**标准安装命令**：
+```bash
+openclaw skills install @sunfj/amap-citywalk-mystery
+```
+
+**手动安装**：
 ```bash
 # 1. 将此 Skill 复制到 OpenClaw 的 skills 目录
 cp -r amap-citywalk-mystery/ ~/openclaw-workspace/skills/
