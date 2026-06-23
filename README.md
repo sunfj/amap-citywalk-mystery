@@ -1,10 +1,16 @@
 # AI CityWalk 剧本杀
 
 > 基于高德地图的城市解谜探索 Skill — 让 AI 当你的剧本杀主持人
+> **开箱即用，零配置，线上服务已部署**
 
 ## 项目简介
 
 AI CityWalk 剧本杀是一个创意地图 Skill，将**剧本杀**的游戏体验搬到**真实城市街道**上。AI 不只是"念稿机器"，而是真正的**剧本杀主持人**——根据你的城市、主题偏好，自动生成沉浸式多章节剧本，串联真实地点，规划步行路线，生成可交互的地图链接，并通过 **GPS 定位 + 现场拍照 + 答案校验** 三重验证逐站引导，只有真正到达现场并完成任务才能解锁下一章。
+
+**架构特点**：
+- 🌐 **全线上化**：所有 API 调用通过 HTTPS 接口，用户无需配置任何 Key
+- 📚 **众包式题库**：AI 自动生成题目并上传，知识库持续积累
+- 🔒 **防作弊设计**：答案校验由服务端完成，AI 不接触标准答案
 
 ## Demo 展示
 
@@ -69,7 +75,7 @@ AI：🏆 通关成绩卡
 
 > **注意**：
 > - AI 模型必须支持多模态（图像识别），如 GPT-4o、Claude 3.5、Qwen-VL 等
-> - 定位打卡服务需部署在公网服务器上，利用浏览器 `navigator.geolocation` 获取真实 GPS
+> - 所有高德 API Key 已统一管理在服务端，用户开箱即用
 
 **游戏机制**：
 - 🔓 **逐站解锁** — 三重验证全通过才能看到下一站剧情
@@ -121,46 +127,19 @@ AI：🏆 通关成绩卡
 npm install
 ```
 
-### 2. 配置 API Key
+### 2. 线上服务（已部署，开箱即用）
 
-方式一：创建配置文件
-```bash
-cp config.example.json config.json
-# 编辑 config.json，填入你的高德 API Key
-```
+本 Skill 采用**全线上化架构**，所有能力通过 HTTPS 接口提供，用户无需配置任何 API Key：
 
-方式二：环境变量
-```bash
-export AMAP_WEBSERVICE_KEY=your_key_here
-```
+| 服务 | 地址 | 用途 |
+|------|------|------|
+| 高德 API 代理 | `https://www.701study.com/app/amap-api` | POI 搜索、路径规划、天气、地图 |
+| 打卡验证服务 | `https://www.701study.com/app/checkin-service` | GPS 定位打卡验证 |
+| 题库服务 | `https://www.701study.com/app/question-service` | 题库查询、上传、答案校验 |
 
-### 3. 使用脚本
+**如果本地开发/部署，可参考各服务的 README 文档。**
 
-#### POI 搜索
-```bash
-node scripts/search-locations.js --keywords=咖啡馆 --city=杭州
-node scripts/search-locations.js --keywords=书店 --city=北京 --types=140600
-```
-
-#### 路径规划
-```bash
-node scripts/plan-route.js --type=walking --origin=120.14873,30.25954 --destination=120.14433,30.25700
-```
-
-#### 生成地图
-```bash
-node scripts/generate-map.js --data=route_data.json
-node scripts/generate-map.js --inline='[{"type":"poi","name":"地点","location":"120.1,30.2","clue":"线索","chapter":1}]'
-```
-
-#### 天气查询
-```bash
-node scripts/check-weather.js --city=杭州
-```
-
-#### 启动定位打卡服务（独立项目 checkin-service/）
-```bash
-cd ../checkin-service
+### 3. 在 AI 助手中使用
 
 # 启动服务（需部署到公网服务器）
 node server.js
@@ -230,17 +209,20 @@ amap-citywalk-mystery/
 
 ## 使用教程
 
-### 典型部署方式
+## 典型部署方式
 
-本 Skill 的典型使用场景是：**部署 OpenClaw 到服务器 → 通过聊天工具接入**
+本 Skill 采用**全线上化架构**，用户端只需 OpenClaw + 多模态 AI 即可：
 
 ```
-┌──────────┐     ┌──────────────┐     ┌────────────┐
-│  用户手机  │────→│ 微信/QQ/飞书  │────→│  OpenClaw   │
-│          │←────│  /钉钉 聊天   │←────│  远程服务器  │
-└──────────┘     └──────────────┘     └────────────┘
-  发送位置/拍照/文字          AI + Skill 运行
+┌──────────┐     ┌──────────────┐     ┌────────────┐     ┌──────────────┐
+│  用户手机  │────→│ 微信/QQ/飞书  │────→│  OpenClaw   │────→│  线上服务    │
+│          │←────│  /钉钉 聊天   │←────│  AI + Skill │←────│  高德API代理  │
+└──────────┘     └──────────────┘     └────────────┘     │  打卡验证服务 │
+                                                          │  题库服务     │
+                                                          └──────────────┘
 ```
+
+**用户无需配置任何 Key，开箱即用。**
 
 ### 在 OpenClaw 中使用
 
@@ -248,13 +230,11 @@ amap-citywalk-mystery/
 # 1. 在远程服务器上部署 OpenClaw 并安装此 Skill
 cp -r amap-citywalk-mystery/ ~/openclaw-workspace/skills/
 
-# 2. 配置高德 API Key
-cd ~/openclaw-workspace/skills/amap-citywalk-mystery/
-cp config.example.json config.json
-# 编辑 config.json 填入 Key
-
-# 3. 将 OpenClaw 接入微信/QQ/飞书/钉钉
+# 2. 将 OpenClaw 接入微信/QQ/飞书/钉钉
 # （参考 OpenClaw 官方文档配置消息通道）
+
+# 3. 配置多模态 AI 模型（如 GPT-4o、Claude 3.5）
+# （参考 OpenClaw 官方文档配置 AI 模型）
 ```
 
 用户通过聊天工具直接对话即可开始游戏：
