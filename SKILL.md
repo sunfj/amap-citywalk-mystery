@@ -60,7 +60,7 @@ node scripts/api-client.js <命令> [参数]
 
 **可用命令**：
 - `location` - 创建位置会话并返回定位链接
-- `location-result <sessionId>` - 查询位置结果（轮询）
+- `location-result` - 查询位置结果（自动读取上次会话）
 - `weather <城市>` - 查询天气
 - `poi <关键词> <城市>` - 搜索地点
 - `route <起点> <终点>` - 规划路线

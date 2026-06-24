@@ -21,8 +21,24 @@
  */
 
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 const BASE_URL = 'https://www.701study.com/app/citywalk-service';
+const SESSION_FILE = path.join(__dirname, '.location-session');
+
+// 工具函数：保存 sessionId
+function saveSessionId(sessionId) {
+  fs.writeFileSync(SESSION_FILE, sessionId, 'utf8');
+}
+
+// 工具函数：读取 sessionId
+function loadSessionId() {
+  if (fs.existsSync(SESSION_FILE)) {
+    return fs.readFileSync(SESSION_FILE, 'utf8').trim();
+  }
+  return null;
+}
 
 // 工具函数：发起 HTTP 请求
 async function request(method, path, data) {
@@ -42,12 +58,17 @@ const commands = {
   // 创建位置会话并返回定位链接
   location: async () => {
     const result = await request('POST', '/api/checkin/create-location');
-    console.log(`SESSION_ID=${result.sessionId}`);
+    saveSessionId(result.sessionId);
     console.log(`LINK=${BASE_URL}/checkin/location?sessionId=${result.sessionId}`);
   },
 
-  // 查询位置结果
-  'location-result': async (sessionId) => {
+  // 查询位置结果（自动读取上次保存的 sessionId）
+  'location-result': async () => {
+    const sessionId = loadSessionId();
+    if (!sessionId) {
+      console.log('❌ 没有定位会话，请先执行 location 命令');
+      return;
+    }
     const result = await request('GET', `/api/checkin/location/${sessionId}`);
     if (result.status === 'completed') {
       console.log(`✅ 定位成功！\n城市：${result.city}\n区域：${result.district}\n省份：${result.province}\n纬度：${result.lat}\n经度：${result.lng}\n精度：${result.accuracy || '未知'} 米`);
