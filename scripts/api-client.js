@@ -42,7 +42,8 @@ const commands = {
   // 创建位置会话并返回定位链接
   location: async () => {
     const result = await request('POST', '/api/checkin/create-location');
-    console.log(`${BASE_URL}/checkin/location?sessionId=${result.sessionId}`);
+    console.log(`SESSION_ID=${result.sessionId}`);
+    console.log(`LINK=${BASE_URL}/checkin/location?sessionId=${result.sessionId}`);
   },
 
   // 查询位置结果
