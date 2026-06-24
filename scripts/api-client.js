@@ -181,6 +181,130 @@ const commands = {
     } else {
       console.error('创建打卡失败:', result);
     }
+  },
+
+  // 剧本管理：请求剧本
+  'story-request': async (city, theme, duration) => {
+    const result = await request('POST', '/api/story/request', { city, theme, duration });
+    if (result.found) {
+      console.log(`✅ 找到预置剧本！`);
+      console.log(`剧本ID: ${result.storyId}`);
+      console.log(`进度ID: ${result.progressId}`);
+      console.log(`标题: ${result.title}`);
+      console.log(`背景: ${result.background}`);
+      console.log(`当前站: ${result.currentStation?.name || '无'}`);
+    } else {
+      console.log(`📝 未找到预置剧本，需要 AI 生成`);
+      console.log(`城市: ${result.city}`);
+      console.log(`主题: ${result.theme}`);
+      console.log(`建议 POI:`);
+      (result.suggestedPOIs || []).forEach((poi, i) => {
+        console.log(`  ${i + 1}. ${poi.name} - ${poi.address} (${poi.lat},${poi.lng})`);
+      });
+    }
+  },
+
+  // 剧本管理：创建剧本
+  'story-create': async (jsonFile) => {
+    if (!jsonFile) {
+      console.error('请提供剧本 JSON 文件路径');
+      return;
+    }
+    const storyData = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+    const result = await request('POST', '/api/story/create', storyData);
+    console.log(`✅ 剧本创建成功！`);
+    console.log(`剧本ID: ${result.storyId}`);
+    console.log(`进度ID: ${result.progressId}`);
+    console.log(`站点数: ${result.stationsCount}`);
+  },
+
+  // 剧本管理：获取当前站
+  'story-current': async (storyId, progressId) => {
+    const result = await request('GET', `/api/story/${storyId}/current?progressId=${progressId}`);
+    if (result.completed) {
+      console.log('🎉 剧本已完成！');
+    } else {
+      console.log(`📍 当前站: ${result.name}`);
+      console.log(`地址: ${result.address}`);
+      console.log(`坐标: ${result.lat},${result.lng}`);
+      console.log(`剧情: ${result.storyText}`);
+      console.log(`任务: ${result.task}`);
+      console.log(`拍照要求: ${result.photoRequirement || '无'}`);
+      console.log(`分值: ${result.score}分 (加分任务: ${result.bonusScore}分)`);
+    }
+  },
+
+  // 剧本管理：打卡验证
+  'story-checkin': async (storyId, progressId, stationId) => {
+    const locationSession = loadSessionId();
+    if (!locationSession) {
+      console.error('请先执行 location 命令获取位置');
+      return;
+    }
+    const locationResult = await request('GET', `/api/checkin/location/${locationSession}`);
+    if (locationResult.status !== 'completed') {
+      console.error('位置信息未完成，请先完成定位');
+      return;
+    }
+    const result = await request('POST', `/api/story/${storyId}/checkin`, {
+      progressId,
+      stationId,
+      lat: locationResult.lat,
+      lng: locationResult.lng
+    });
+    if (result.passed) {
+      console.log(`✅ ${result.message}`);
+    } else {
+      console.log(`❌ ${result.message}`);
+    }
+  },
+
+  // 剧本管理：提交答案
+  'story-answer': async (storyId, progressId, stationId, answer) => {
+    const result = await request('POST', `/api/story/${storyId}/answer`, {
+      progressId,
+      stationId,
+      textAnswer: answer
+    });
+    console.log(result.feedback);
+    console.log(`得分: +${result.scoreEarned}`);
+    console.log(`总分: ${result.totalScore}`);
+    if (!result.correct && result.retries < result.maxRetries) {
+      console.log(`重试次数: ${result.retries}/${result.maxRetries}`);
+    }
+    if (result.revealed) {
+      console.log('答案已揭晓，进入下一站');
+    }
+  },
+
+  // 剧本管理：进入下一站
+  'story-next': async (storyId, progressId) => {
+    const result = await request('POST', `/api/story/${storyId}/next`, { progressId });
+    if (result.completed) {
+      console.log(`🎉 剧本完成！`);
+      console.log(`总分: ${result.totalScore}/${result.maxScore}`);
+      console.log(`评级: ${result.rating.grade} - ${result.rating.name}`);
+    } else {
+      console.log(`📍 下一站: ${result.name}`);
+      console.log(`地址: ${result.address}`);
+      console.log(`坐标: ${result.lat},${result.lng}`);
+      console.log(`剧情: ${result.storyText}`);
+      console.log(`任务: ${result.task}`);
+    }
+  },
+
+  // 剧本管理：获取结果
+  'story-result': async (storyId, progressId) => {
+    const result = await request('GET', `/api/story/${storyId}/result?progressId=${progressId}`);
+    console.log(`🏆 通关成绩卡`);
+    console.log(`标题: ${result.title}`);
+    console.log(`总分: ${result.totalScore}/${result.maxScore}`);
+    console.log(`评级: ${result.rating.grade} - ${result.rating.name}`);
+    console.log(`时长: ${result.duration}`);
+    console.log(`\n各站详情:`);
+    result.stations.forEach((s, i) => {
+      console.log(`  ${i + 1}. ${s.name}: ${s.score}/${s.maxScore}分 ${s.passed ? '✅' : '❌'} ${s.correct ? '✅' : '❌'}`);
+    });
   }
 };
 
@@ -194,6 +318,7 @@ async function main() {
     
 命令:
   location                        - 获取定位链接
+  location-result                 - 查询位置结果
   weather <city>                  - 查询天气
   poi <keywords> <city> [types]   - 搜索 POI
   route <origin> <destination>    - 规划路线
@@ -202,13 +327,19 @@ async function main() {
   upload-questions <data>         - 上传题目
   verify <questionId> <answer>    - 校验答案
   checkin <poiName> <lat> <lng>   - 创建打卡
+  story-request <city> <theme> <duration> - 请求剧本
+  story-create <jsonFile>         - 创建剧本
+  story-current <storyId> <progressId> - 获取当前站
+  story-checkin <storyId> <progressId> <stationId> - 打卡验证
+  story-answer <storyId> <progressId> <stationId> <answer> - 提交答案
+  story-next <storyId> <progressId> - 进入下一站
+  story-result <storyId> <progressId> - 获取结果
 
 示例:
   node api-client.js location
   node api-client.js weather 杭州
   node api-client.js poi 博物馆 杭州
-  node api-client.js route 120.14873,30.25954 120.15000,30.26000
-  node api-client.js checkin "纯真年代书吧" 30.25954 120.14873`);
+  node api-client.js story-request 杭州 悬疑 1小时`);
     process.exit(1);
   }
 

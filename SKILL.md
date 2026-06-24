@@ -69,8 +69,21 @@ node scripts/api-client.js <命令> [参数]
 - `upload-questions <数据>` - 上传题目
 - `verify <题目ID> <答案>` - 校验答案
 - `checkin <地点名> <纬度> <经度>` - 创建打卡
+- `story-request <城市> <主题> <时长>` - 请求剧本
+- `story-create <json文件>` - 创建剧本
+- `story-current <storyId> <progressId>` - 获取当前站
+- `story-checkin <storyId> <progressId> <stationId>` - 打卡验证
+- `story-answer <storyId> <progressId> <stationId> <答案>` - 提交答案
+- `story-next <storyId> <progressId>` - 进入下一站
+- `story-result <storyId> <progressId>` - 获取结果
 
 **答案校验机制**：用户回答后，由服务端比对标准答案，AI 不接触答案，防止用户直接从 AI 套题。
+
+**剧本管理流程**：
+1. 调用 `story-request` 请求剧本（优先返回预置剧本）
+2. 若无预置剧本，AI 根据建议 POI 生成剧本并调用 `story-create` 上传
+3. 逐站引导用户：`story-current` → `story-checkin` → `story-answer` → `story-next`
+4. 完成后调用 `story-result` 获取通关成绩
 
 ## 执行流程
 
