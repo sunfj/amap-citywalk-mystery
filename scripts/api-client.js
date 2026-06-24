@@ -48,7 +48,13 @@ const commands = {
   // 查询位置结果
   'location-result': async (sessionId) => {
     const result = await request('GET', `/api/checkin/location/${sessionId}`);
-    console.log(JSON.stringify(result, null, 2));
+    if (result.status === 'completed') {
+      console.log(`✅ 定位成功！\n城市：${result.city}\n区域：${result.district}\n省份：${result.province}\n纬度：${result.lat}\n经度：${result.lng}\n精度：${result.accuracy || '未知'} 米`);
+    } else if (result.status === 'waiting') {
+      console.log('⏳ 等待中，用户还未完成定位');
+    } else {
+      console.log('❌ 会话不存在或已过期，请重新获取定位链接');
+    }
   },
 
   // 查询天气
