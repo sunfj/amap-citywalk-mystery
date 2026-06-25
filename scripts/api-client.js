@@ -143,6 +143,14 @@ const commands = {
     console.log(result.mapUrl);
   },
 
+  // 生成地图可视化页面（返回链接）
+  'map-view': async (data) => {
+    const parsed = JSON.parse(data);
+    // 通过 POST 请求获取地图页面 URL
+    const result = await request('POST', '/api/amap/map/generate', parsed);
+    console.log(result.mapUrl);
+  },
+
   // 查询题库
   questions: async (poiIds) => {
     const result = await request('GET', `/api/questions/batch?poiIds=${poiIds}`);
