@@ -87,12 +87,32 @@ node scripts/api-client.js <命令> [参数]
 
 ## 执行流程
 
-**⚠️ 链接格式规范（重要！）**：
-所有发送给用户链接必须使用 **Markdown 超链接格式**，禁止直接显示原始 URL：
+**⚠️ 链接格式规范（极其重要！）**：
+所有发送给用户链接必须使用 **Markdown 超链接格式**，绝对禁止直接显示原始 URL：
+
+**操作步骤**：
+1. 执行脚本命令，获取输出的 URL
+2. 提取 URL（`LINK=` 后面的部分）
+3. 用 Markdown 超链接格式包装后发送给用户
+
+**示例**：
+```bash
+# 执行定位命令
+node scripts/api-client.js location
+# 输出：LINK=https://xxx/checkin/location?sessionId=abc123
+
+# 提取 URL 后，用 Markdown 格式发送：
+```
+
+```markdown
+[📍 点击获取定位](https://xxx/checkin/location?sessionId=abc123)
+```
+
+**正确 vs 错误**：
 ```markdown
 ✅ 正确：[📍 点击获取定位](链接)
 ✅ 正确：[📍 点击打卡](链接)
-✅ 正确：[🗺️ 查看路线](链接)
+✅ 正确：[🗺️ 导航到目的地](链接)
 ❌ 错误：https://www.701study.com/app/citywalk-service/checkin/location?sessionId=xxx
 ```
 
@@ -135,9 +155,14 @@ PLACEHOLDER_二：获取用户偏好
 示例对话：
 ```
 用户：我想玩剧本杀
-AI：📍 让我先获取你的位置，为你推荐附近的路线！
-    [📍 点击获取定位](<定位链接>)
-    获取完成后回来告诉我
+
+AI 执行：node scripts/api-client.js location
+脚本输出：LINK=https://xxx/checkin/location?sessionId=abc123
+
+AI 发送给用户（用 Markdown 超链接格式）：
+📍 让我先获取你的位置，为你推荐附近的路线！
+[📍 点击获取定位](https://xxx/checkin/location?sessionId=abc123)
+获取完成后回来告诉我
 
 [用户点击链接，浏览器打开，授权定位]
 
@@ -417,7 +442,12 @@ AI 为每站生成专属打卡链接，用户通过聊天工具操作。
 
 ```
 【步骤1：打卡链接定位】
-AI：[📍 点击打卡确认到达](<打卡链接>)
+AI 执行：node scripts/api-client.js checkin "纯真年代书吧" 30.25954 120.14873
+脚本输出：LINK=https://xxx/checkin/abc123
+
+AI 发送给用户（用 Markdown 超链接格式）：
+[📍 点击打卡确认到达](https://xxx/checkin/abc123)
+
 用户：[点击链接，浏览器打开，授权定位，点击“获取位置并打卡”]
 AI（查询结果）：📍 定位确认！你距离「纯真年代书吧」约 85 米，已到达！
 
